@@ -1,10 +1,12 @@
 import { type ChangeEvent, useMemo, useState } from "react";
 
+import type { ParseStatus } from "../../db";
 import { createImportJob } from "../../db/importJobs";
 import {
   fetchArticlesWithConcurrency,
   type FetchArticleResult,
 } from "../../import/fetchArticleHtml";
+import { parseArticleHtml } from "../../import/parseArticleHtml";
 import {
   parsePocketExport,
   type ParsedPocketItem,
@@ -22,6 +24,8 @@ type FetchSummary = {
   success: number;
   failed: number;
 };
+
+type FetchDisplayResult = FetchArticleResult & { parseStatus?: ParseStatus };
 
 const buildInvalidState = (message: string): ValidationState => ({
   status: "invalid",
@@ -78,6 +82,18 @@ const formatResultStatus = (result: FetchArticleResult): string => {
   return "Failed";
 };
 
+const formatParseStatus = (status: ParseStatus): string => {
+  if (status === "success") {
+    return "Parsed";
+  }
+
+  if (status === "partial") {
+    return "Partial parse (saved raw HTML)";
+  }
+
+  return "Parse failed";
+};
+
 function ImportPage() {
   const [validation, setValidation] = useState<ValidationState>({
     status: "idle",
@@ -86,7 +102,7 @@ function ImportPage() {
   const [importJobId, setImportJobId] = useState<string | null>(null);
   const [fetchPhase, setFetchPhase] = useState<FetchPhase>("idle");
   const [fetchResults, setFetchResults] = useState<
-    Record<string, FetchArticleResult>
+    Record<string, FetchDisplayResult>
   >({});
 
   const fetchSummary = useMemo(() => {
@@ -149,9 +165,12 @@ function ImportPage() {
         concurrency: 3,
         timeoutMs: 15000,
         onResult: (result) => {
+          const parseStatus = result.html
+            ? parseArticleHtml(result.html).parse_status
+            : undefined;
           setFetchResults((prev) => ({
             ...prev,
-            [result.url]: result,
+            [result.url]: { ...result, parseStatus },
           }));
         },
       },
@@ -220,6 +239,11 @@ function ImportPage() {
                     <div className="import-preview__meta">
                       {formatResultStatus(result)}
                       {result.error ? ` · ${result.error}` : null}
+                    </div>
+                  )}
+                  {result?.parseStatus && (
+                    <div className="import-preview__meta">
+                      {formatParseStatus(result.parseStatus)}
                     </div>
                   )}
                 </li>
