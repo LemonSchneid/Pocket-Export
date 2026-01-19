@@ -127,6 +127,8 @@ Helpers:
 
 **DoD:** Preferences persist across reload.
 
+**Status:** Complete — added persisted reader preferences for font size, line width, and dark mode.
+
 ---
 
 ### T1.4 — Offline reader verification

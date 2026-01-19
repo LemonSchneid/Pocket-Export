@@ -129,3 +129,90 @@
   color: #6b6b6b;
   font-style: italic;
 }
+
+.reader-page {
+  gap: 20px;
+}
+
+.reader-page--dark {
+  background: #121212;
+  border-color: #2a2a2a;
+  color: #f5f3ef;
+}
+
+.reader-page--dark .page__status {
+  color: #cfc7bf;
+}
+
+.reader-page--dark .reader__url {
+  color: #f5f3ef;
+}
+
+.reader-page--dark .reader__empty {
+  color: #cfc7bf;
+}
+
+.reader--dark .reader__body {
+  color: #f5f3ef;
+}
+
+.reader-preferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f7f5f2;
+  border: 1px solid #e3ded7;
+}
+
+.reader-page--dark .reader-preferences {
+  background: #1b1b1b;
+  border-color: #2a2a2a;
+}
+
+.reader-preferences__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.reader-preferences__group label {
+  font-size: 0.95rem;
+  color: inherit;
+}
+
+.reader-preferences__control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reader-preferences__control input[type="range"] {
+  accent-color: #1f1f1f;
+  flex: 1;
+}
+
+.reader-page--dark .reader-preferences__control input[type="range"] {
+  accent-color: #f5f3ef;
+}
+
+.reader-preferences__value {
+  font-size: 0.9rem;
+  color: #4a4a4a;
+  min-width: 52px;
+  text-align: right;
+}
+
+.reader-page--dark .reader-preferences__value {
+  color: #cfc7bf;
+}
+
+.reader-preferences__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}

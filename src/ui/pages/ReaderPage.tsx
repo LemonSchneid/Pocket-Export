@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { getArticleById, markRead } from "../../db/articles";
 import type { Article } from "../../db";
+import {
+  defaultReaderPreferences,
+  getReaderPreferences,
+  setReaderPreferences,
+  type ReaderPreferences,
+} from "../../db/settings";
 import ReaderContent from "../../reader/ReaderContent";
 
 function ReaderPage() {
@@ -10,6 +16,9 @@ function ReaderPage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [preferences, setPreferences] = useState<ReaderPreferences>(
+    defaultReaderPreferences,
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -61,9 +70,104 @@ function ReaderPage() {
     };
   }, [id]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    const loadPreferences = async () => {
+      const stored = await getReaderPreferences();
+
+      if (isActive) {
+        setPreferences(stored);
+      }
+    };
+
+    loadPreferences();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const preferenceLabel = useMemo(
+    () => ({
+      fontSize: `${Math.round(preferences.fontSize * 100)}%`,
+      lineWidth: `${preferences.lineWidth}ch`,
+    }),
+    [preferences.fontSize, preferences.lineWidth],
+  );
+
+  const updatePreferences = (next: ReaderPreferences) => {
+    setPreferences(next);
+    void setReaderPreferences(next);
+  };
+
   return (
-    <section className="page">
+    <section
+      className={`page reader-page${
+        preferences.darkMode ? " reader-page--dark" : ""
+      }`}
+    >
       <h2 className="page__title">Reader</h2>
+      <div className="reader-preferences">
+        <div className="reader-preferences__group">
+          <label htmlFor="reader-font-size">Font size</label>
+          <div className="reader-preferences__control">
+            <input
+              id="reader-font-size"
+              type="range"
+              min="0.9"
+              max="1.4"
+              step="0.05"
+              value={preferences.fontSize}
+              onChange={(event) =>
+                updatePreferences({
+                  ...preferences,
+                  fontSize: Number(event.target.value),
+                })
+              }
+            />
+            <span className="reader-preferences__value">
+              {preferenceLabel.fontSize}
+            </span>
+          </div>
+        </div>
+        <div className="reader-preferences__group">
+          <label htmlFor="reader-line-width">Line width</label>
+          <div className="reader-preferences__control">
+            <input
+              id="reader-line-width"
+              type="range"
+              min="52"
+              max="90"
+              step="2"
+              value={preferences.lineWidth}
+              onChange={(event) =>
+                updatePreferences({
+                  ...preferences,
+                  lineWidth: Number(event.target.value),
+                })
+              }
+            />
+            <span className="reader-preferences__value">
+              {preferenceLabel.lineWidth}
+            </span>
+          </div>
+        </div>
+        <label className="reader-preferences__toggle" htmlFor="reader-dark-mode">
+          <input
+            id="reader-dark-mode"
+            type="checkbox"
+            checked={preferences.darkMode}
+            onChange={(event) =>
+              updatePreferences({
+                ...preferences,
+                darkMode: event.target.checked,
+              })
+            }
+          />
+          Dark mode
+        </label>
+      </div>
       {isLoading ? (
         <p className="page__status">Loading article...</p>
       ) : null}
@@ -73,6 +177,7 @@ function ReaderPage() {
           title={article.title}
           url={article.url}
           contentHtml={article.content_html}
+          preferences={preferences}
         />
       ) : null}
     </section>
