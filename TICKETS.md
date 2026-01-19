@@ -292,6 +292,8 @@ Helpers:
 
 **DoD:** Tags persist correctly.
 
+**Status:** Complete — added tag create/delete management in Settings and per-article tag assignment in Reader.
+
 ---
 
 ### T4.2 — Tag filtering

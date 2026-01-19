@@ -493,3 +493,126 @@
 .reader-page--dark .reader-status--offline .reader-status__label {
   color: #f3c2b5;
 }
+
+.tag-manager,
+.tag-settings {
+  border-radius: 12px;
+  border: 1px solid #e3ded7;
+  background: #f7f5f2;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reader-page--dark .tag-manager {
+  background: #1b1b1b;
+  border-color: #2a2a2a;
+}
+
+.tag-manager__header h3,
+.tag-settings__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.tag-manager__header p,
+.tag-settings__header p {
+  margin: 4px 0 0;
+  color: #4a4a4a;
+  font-size: 0.95rem;
+}
+
+.reader-page--dark .tag-manager__header p {
+  color: #cfc7bf;
+}
+
+.tag-manager__form,
+.tag-settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tag-manager__input,
+.tag-settings__input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-manager__input input,
+.tag-settings__input input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d7d1c8;
+  font-size: 0.95rem;
+}
+
+.tag-manager__input button,
+.tag-settings__input button,
+.tag-settings__item button {
+  border-radius: 999px;
+  border: 1px solid #d7d1c8;
+  background: #ffffff;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tag-manager__input button:disabled,
+.tag-settings__input button:disabled,
+.tag-settings__item button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tag-manager__error,
+.tag-settings__error {
+  margin: 0;
+  color: #b42318;
+}
+
+.tag-manager__empty,
+.tag-settings__empty {
+  margin: 0;
+  color: #6b6b6b;
+}
+
+.tag-manager__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tag-manager__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #e3ded7;
+  font-size: 0.9rem;
+}
+
+.tag-settings__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tag-settings__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #e3ded7;
+  background: #ffffff;
+}

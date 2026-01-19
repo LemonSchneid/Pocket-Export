@@ -1,8 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useParams } from "react-router-dom";
 
 import { getArticleById, markRead } from "../../db/articles";
-import type { Article } from "../../db";
+import type { Article, Tag } from "../../db";
+import {
+  createTag,
+  getTagsForArticle,
+  listTags,
+  setTagsForArticle,
+} from "../../db/tags";
 import {
   defaultReaderPreferences,
   getReaderPreferences,
@@ -22,6 +28,11 @@ function ReaderPage() {
   const [preferences, setPreferences] = useState<ReaderPreferences>(
     defaultReaderPreferences,
   );
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [articleTags, setArticleTags] = useState<Tag[]>([]);
+  const [newTagName, setNewTagName] = useState("");
+  const [tagError, setTagError] = useState<string | null>(null);
+  const [isTagSaving, setIsTagSaving] = useState(false);
   const hasSavedContent = Boolean(article?.content_html);
 
   useEffect(() => {
@@ -68,6 +79,37 @@ function ReaderPage() {
     };
 
     loadArticle();
+
+    return () => {
+      isActive = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadTags = async () => {
+      if (!id) {
+        return;
+      }
+
+      try {
+        const [availableTags, assignedTags] = await Promise.all([
+          listTags(),
+          getTagsForArticle(id),
+        ]);
+        if (isActive) {
+          setTags(availableTags);
+          setArticleTags(assignedTags);
+        }
+      } catch {
+        if (isActive) {
+          setTagError("Unable to load tags.");
+        }
+      }
+    };
+
+    loadTags();
 
     return () => {
       isActive = false;
@@ -126,6 +168,80 @@ function ReaderPage() {
     : hasSavedContent
       ? "You're offline. Viewing saved articles from local storage."
       : "You're offline. This article is missing saved content; reconnect to load it.";
+
+  const assignedTagIds = useMemo(
+    () => new Set(articleTags.map((tag) => tag.id)),
+    [articleTags],
+  );
+
+  const refreshTags = async (articleId: string) => {
+    const [availableTags, assignedTags] = await Promise.all([
+      listTags(),
+      getTagsForArticle(articleId),
+    ]);
+    setTags(availableTags);
+    setArticleTags(assignedTags);
+  };
+
+  const handleToggleTag = async (tagId: string) => {
+    if (!article) {
+      return;
+    }
+
+    setIsTagSaving(true);
+    setTagError(null);
+
+    try {
+      const nextTagIds = assignedTagIds.has(tagId)
+        ? articleTags.filter((tag) => tag.id !== tagId).map((tag) => tag.id)
+        : [...articleTags.map((tag) => tag.id), tagId];
+
+      await setTagsForArticle(article.id, nextTagIds);
+      await refreshTags(article.id);
+    } catch (caughtError) {
+      setTagError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to update tags.",
+      );
+    } finally {
+      setIsTagSaving(false);
+    }
+  };
+
+  const handleCreateTag = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!article) {
+      return;
+    }
+
+    setIsTagSaving(true);
+    setTagError(null);
+
+    try {
+      const created = await createTag(newTagName);
+      if (!created) {
+        setTagError("Enter a tag name to add.");
+        setIsTagSaving(false);
+        return;
+      }
+
+      const nextTagIds = new Set(articleTags.map((tag) => tag.id));
+      nextTagIds.add(created.id);
+      await setTagsForArticle(article.id, Array.from(nextTagIds));
+      await refreshTags(article.id);
+      setNewTagName("");
+    } catch (caughtError) {
+      setTagError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Unable to create tag.",
+      );
+    } finally {
+      setIsTagSaving(false);
+    }
+  };
 
   return (
     <section
@@ -206,6 +322,49 @@ function ReaderPage() {
         </span>
         <span className="reader-status__message">{statusMessage}</span>
       </div>
+      <section className="tag-manager">
+        <div className="tag-manager__header">
+          <h3>Tags</h3>
+          <p>Organize this article with tags stored locally.</p>
+        </div>
+        <form className="tag-manager__form" onSubmit={handleCreateTag}>
+          <label htmlFor="new-tag-name">Add tag</label>
+          <div className="tag-manager__input">
+            <input
+              id="new-tag-name"
+              type="text"
+              value={newTagName}
+              onChange={(event) => setNewTagName(event.target.value)}
+              placeholder="e.g. design, research"
+            />
+            <button type="submit" disabled={isTagSaving}>
+              Add
+            </button>
+          </div>
+        </form>
+        {tagError ? (
+          <p className="tag-manager__error" role="alert">
+            {tagError}
+          </p>
+        ) : null}
+        {tags.length === 0 ? (
+          <p className="tag-manager__empty">No tags yet.</p>
+        ) : (
+          <div className="tag-manager__list" aria-live="polite">
+            {tags.map((tag) => (
+              <label key={tag.id} className="tag-manager__item">
+                <input
+                  type="checkbox"
+                  checked={assignedTagIds.has(tag.id)}
+                  onChange={() => handleToggleTag(tag.id)}
+                  disabled={isTagSaving}
+                />
+                <span>{tag.name}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </section>
       {isLoading ? (
         <p className="page__status">Loading article...</p>
       ) : null}
