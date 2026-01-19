@@ -56,6 +56,8 @@ src/
 
 **DoD:** Insert + read a test article from IndexedDB via console.
 
+**Status:** Complete — Dexie schema created and exposed as `window.pocketDb` in dev for console testing.
+
 ---
 
 ### T0.3 — Base app shell + routing
