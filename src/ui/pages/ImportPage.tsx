@@ -1,7 +1,14 @@
 import { type ChangeEvent, useMemo, useState } from "react";
 
 import type { ParseStatus } from "../../db";
-import { createImportJob } from "../../db/importJobs";
+import { createArticle } from "../../db/articles";
+import {
+  completeImportJob,
+  createImportJob,
+  recordImportJobResult,
+  updateImportJob,
+} from "../../db/importJobs";
+import { addTagsToArticle } from "../../db/tags";
 import {
   fetchArticlesWithConcurrency,
   type FetchArticleResult,
@@ -159,15 +166,41 @@ function ImportPage() {
     setFetchPhase("running");
     setFetchResults({});
 
+    if (importJobId) {
+      await updateImportJob(importJobId, { status: "in_progress" });
+    }
+
+    const itemsByUrl = new Map(
+      previewItems.map((item) => [item.url, item]),
+    );
+
     await fetchArticlesWithConcurrency(
       previewItems.map((item) => item.url),
       {
         concurrency: 3,
         timeoutMs: 15000,
-        onResult: (result) => {
-          const parseStatus = result.html
-            ? parseArticleHtml(result.html).parse_status
-            : undefined;
+        onResult: async (result) => {
+          const item = itemsByUrl.get(result.url);
+          let parseStatus: ParseStatus | undefined;
+
+          if (result.status === "success" && result.html && item) {
+            const parsed = parseArticleHtml(result.html);
+            parseStatus = parsed.parse_status;
+            const article = await createArticle({
+              url: item.url,
+              title: item.title,
+              content_html: parsed.content_html,
+              content_text: parsed.content_text,
+              parse_status: parsed.parse_status,
+            });
+            await addTagsToArticle(article.id, item.tags);
+            if (importJobId) {
+              await recordImportJobResult(importJobId, "success");
+            }
+          } else if (importJobId) {
+            await recordImportJobResult(importJobId, "failed");
+          }
+
           setFetchResults((prev) => ({
             ...prev,
             [result.url]: { ...result, parseStatus },
@@ -177,6 +210,10 @@ function ImportPage() {
     );
 
     setFetchPhase("complete");
+
+    if (importJobId) {
+      await completeImportJob(importJobId);
+    }
   };
 
   return (
