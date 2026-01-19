@@ -159,6 +159,8 @@ Helpers:
 * Valid file accepted
 * Invalid file rejected gracefully
 
+**Status:** Complete — added Pocket export upload with ril_export.html validation and feedback.
+
 ---
 
 ### T2.2 — Parse Pocket HTML (URLs + tags)
