@@ -4,13 +4,13 @@ Below is the authoritative ticket set aligned with the final MVP build spec.
 
 ---
 
-# 🧱 EPIC 0 — Repo & Foundations (DO FIRST)
+# 🧱 EPIC 0 — Repo & Foundations
 
-### T0.1 — Project skeleton + tooling
+### T0.1 — Initialize project (Vite + React + TypeScript)
 
-**Goal:** Boot a clean local-first web app.
+**Context:** Boot the web app.
 
-* Vite + React + TypeScript
+* Initialize Vite + React + TypeScript
 * ESLint + Prettier
 * Folder structure:
 
@@ -19,23 +19,26 @@ src/
   db/
   reader/
   import/
-  export/
   search/
+  export/
   offline/
   ui/
   utils/
 ```
 
-**DoD:** App runs locally, blank shell loads.
+**DoD:**
+
+* App runs locally
+* Blank shell renders without errors
 
 ---
 
 ### T0.2 — IndexedDB schema with Dexie (SOURCE OF TRUTH)
 
-**Goal:** Define and version local database.
+**Context:** Define the entire data model.
 
 * Install Dexie
-* Define DB v1 with tables:
+* Create DB v1 with tables:
 
   * articles
   * tags
@@ -43,56 +46,60 @@ src/
   * assets
   * settings
   * import_jobs
-* Include fields:
+* Fields must include:
 
   * `content_html`
   * `content_text`
   * `parse_status`
 
-**DoD:** Can insert + query test article via console.
+**DoD:** Insert + read a test article from IndexedDB via console.
 
 ---
 
 ### T0.3 — Base app shell + routing
 
-**Goal:** Navigable skeleton.
+**Context:** Navigation skeleton.
 
 Routes:
 
-* `/` (Library)
+* `/` Library
 * `/reader/:id`
 * `/import`
 * `/export`
 * `/settings`
 
-**DoD:** Route changes without reload.
+**DoD:**
+
+* Routes switch without reload
+* No routing errors
 
 ---
 
 # 📚 EPIC 1 — Reader Core (EXISTENTIAL)
 
-### T1.1 — Article model + DB helpers
+### T1.1 — Article DB helpers
 
-**Goal:** Centralize DB access.
+**Context:** Centralize DB access.
 
 Helpers:
 
 * createArticle
 * updateArticle
-* listArticles
 * getArticleById
-* markRead / archive
+* listArticles
+* markRead
+* archiveArticle
 
-**DoD:** All DB access flows through helpers.
+**DoD:** All article reads/writes go through helpers.
 
 ---
 
 ### T1.2 — Reader rendering component
 
-**Goal:** High-quality reading experience.
+**Context:** Core reading experience.
 
-* Render `content_html`
-* Safe HTML sanitization
+* Render sanitized content_html
+* Use DOMPurify
 * Responsive layout
 
 **DoD:** Hardcoded article reads cleanly.
@@ -101,20 +108,20 @@ Helpers:
 
 ### T1.3 — Reader preferences (local)
 
-**Goal:** Reading comfort.
+**Context:** Reading comfort.
 
 * Font size
 * Line width
 * Dark mode
-* Persist in `settings`
+* Persist in settings
 
-**DoD:** Preferences survive reload.
+**DoD:** Preferences persist across reload.
 
 ---
 
 ### T1.4 — Offline reader verification
 
-**Goal:** Prove wedge.
+**Context:** Prove wedge.
 
 * Load article
 * Disable network
@@ -126,48 +133,47 @@ Helpers:
 
 # 📥 EPIC 2 — Pocket Import (MAGIC MOMENT)
 
-### T2.1 — Pocket HTML upload + validation
+### T2.1 — Pocket HTML upload
 
-**Goal:** Accept Pocket export.
+**Context:** Accept Pocket export.
 
-* File input
-* Validate `ril_export.html`
+* Upload ril_export.html
+* Validate structure
 
-**DoD:** Valid file accepted, invalid rejected gracefully.
+**DoD:**
+
+* Valid file accepted
+* Invalid file rejected gracefully
 
 ---
 
 ### T2.2 — Parse Pocket HTML (URLs + tags)
 
-**Goal:** Extract import payload.
+**Context:** Extract import payload.
 
 * DOMParser
-* Extract:
+* Extract URL, title, tags
+* Create import_job
 
-  * URL
-  * Title
-  * Tags
-* Create `import_job`
-
-**DoD:** Parsed list rendered for user.
+**DoD:** Parsed list visible to user.
 
 ---
 
 ### T2.3 — Client-side article fetcher
 
-**Goal:** Retrieve article HTML.
+**Context:** Retrieve article HTML.
 
-* Fetch URL
+* Fetch URL client-side
 * Timeout + error handling
 * Throttled requests
 
-**DoD:** Raw HTML fetched for multiple URLs.
+**DoD:** Multiple URLs fetched without blocking import.
 
 ---
 
-### T2.4 — Readability parsing + fallback
+### T2.4 — Readability parsing with fallback
 
-**Goal:** Extract readable content.
+**Context:** Extract readable content.
 
 * Run Mozilla Readability
 * Extract:
@@ -177,7 +183,7 @@ Helpers:
 * On failure:
 
   * Store raw HTML
-  * Set `parse_status = partial`
+  * Set parse_status = "partial"
 
 **DoD:** No import hard-fails due to parsing.
 
@@ -185,19 +191,18 @@ Helpers:
 
 ### T2.5 — Persist imported articles incrementally
 
-**Goal:** Durable import.
+**Context:** Durable import.
 
-* Save article
-* Save tags + relations
+* Save article + tags
 * Update import stats live
 
-**DoD:** Articles appear during import, not after.
+**DoD:** Articles appear in library during import.
 
 ---
 
 ### T2.6 — Import progress UI
 
-**Goal:** Trust + visibility.
+**Context:** Trust + visibility.
 
 * Progress bar
 * Imported / failed counters
@@ -211,7 +216,7 @@ Helpers:
 
 ### T3.1 — Article list UI
 
-**Goal:** Browse library.
+**Context:** Browse library.
 
 * Title
 * Site name
@@ -222,9 +227,9 @@ Helpers:
 
 ---
 
-### T3.2 — Read / unread tracking
+### T3.2 — Read / unread state
 
-**Goal:** Basic state.
+**Context:** Basic organization.
 
 * Mark read on open
 * Filter unread
@@ -235,7 +240,7 @@ Helpers:
 
 ### T3.3 — Archive support
 
-**Goal:** Hide old content.
+**Context:** Hide old content.
 
 * Archive toggle
 * Archived filter
@@ -248,18 +253,18 @@ Helpers:
 
 ### T4.1 — Tag CRUD
 
-**Goal:** Tag management.
+**Context:** Tag management.
 
-* Create / delete tags
-* Assign / remove tags
+* Create/delete tags
+* Assign/remove tags
 
-**DoD:** Tag changes persist.
+**DoD:** Tags persist correctly.
 
 ---
 
 ### T4.2 — Tag filtering
 
-**Goal:** Slice library.
+**Context:** Slice library.
 
 * Filter by one or more tags
 
@@ -269,24 +274,24 @@ Helpers:
 
 ### T4.3 — Local full-text search
 
-**Goal:** Fast local search.
+**Context:** Find content locally.
 
-* Index `content_text` only
-* Title + body search
-* Batch indexing post-import
+* FlexSearch
+* Index content_text only
+* Batch index post-import
 
-**DoD:** Search works on large imports (1k+).
+**DoD:** Search works on 1k+ articles.
 
 ---
 
-# 📦 EPIC 5 — Offline & Storage Infrastructure
+# 📦 EPIC 5 — Offline & Storage
 
 ### T5.1 — Service Worker (app shell)
 
-**Goal:** App loads offline.
+**Context:** Offline load.
 
+* Use vite-plugin-pwa
 * Cache app shell
-* Versioned cache
 
 **DoD:** App opens offline.
 
@@ -294,10 +299,10 @@ Helpers:
 
 ### T5.2 — Asset (image) caching
 
-**Goal:** Full offline reading.
+**Context:** Full offline reading.
 
 * Download images
-* Store as blobs in `assets`
+* Store blobs in assets
 * Rewrite src URLs
 
 **DoD:** Images render offline.
@@ -306,13 +311,16 @@ Helpers:
 
 ### T5.3 — Storage usage + persistence
 
-**Goal:** Prevent silent failure.
+**Context:** Prevent silent failure.
 
 * Estimate IndexedDB usage
 * Warn at ~70%
-* Call `navigator.storage.persist()` after first import
+* Call navigator.storage.persist() after first import
 
-**DoD:** Storage info visible + persistence requested.
+**DoD:**
+
+* Storage info visible
+* Persistence requested
 
 ---
 
@@ -320,9 +328,9 @@ Helpers:
 
 ### T6.1 — Markdown exporter
 
-**Goal:** Open exit.
+**Context:** Open exit.
 
-* One `.md` per article
+* One .md per article
 * YAML frontmatter:
 
   * title
@@ -330,15 +338,15 @@ Helpers:
   * tags
   * saved_at
 
-**DoD:** Files readable in Obsidian.
+**DoD:** Files open cleanly in Obsidian.
 
 ---
 
 ### T6.2 — ZIP bundler
 
-**Goal:** One-click export.
+**Context:** One-click export.
 
-* Bundle Markdown files
+* Use JSZip
 * Trigger browser download
 
 **DoD:** ZIP downloads successfully.
@@ -349,7 +357,7 @@ Helpers:
 
 ### T7.1 — Save via pasted URL
 
-**Goal:** Add new content.
+**Context:** Add new content.
 
 * Paste URL
 * Fetch + parse + store
@@ -360,7 +368,7 @@ Helpers:
 
 ### T7.2 — Bookmarklet
 
-**Goal:** Lightweight capture.
+**Context:** Lightweight capture.
 
 * JS bookmarklet
 * Opens app with URL payload
@@ -373,11 +381,11 @@ Helpers:
 
 ### T8.1 — Settings screen
 
-**Goal:** Transparency + control.
+**Context:** Transparency + control.
 
 * Storage usage
 * Clear all data
-* About text (“Local-first, no server dependency”)
+* About (“Local-first. No server dependency.”)
 
 **DoD:** Settings fully functional.
 
@@ -385,10 +393,10 @@ Helpers:
 
 ### T8.2 — Error handling + logging
 
-**Goal:** Debuggable MVP.
+**Context:** Debuggable MVP.
 
 * Graceful UI errors
-* Console logs for failures
+* Console logging
 
 **DoD:** No silent failures.
 
@@ -398,10 +406,10 @@ Helpers:
 
 ### T9.1 — PWA manifest + install flow
 
-**Goal:** Install at right moment.
+**Context:** Install at right moment.
 
 * Manifest
-* Install prompt triggered **after successful import**
+* Install prompt after successful import
 
 **DoD:** Install prompt appears post-import.
 
@@ -409,7 +417,7 @@ Helpers:
 
 ### T9.2 — Beta deployment
 
-**Goal:** Ship.
+**Context:** Ship.
 
 * Static hosting
 * HTTPS
@@ -418,9 +426,9 @@ Helpers:
 
 ---
 
-## 🛑 FINAL RULE
+## FINAL EXECUTION RULE
 
-If you feel tempted to add:
+If a ticket tempts you to add:
 
 * Sync
 * Accounts
@@ -428,21 +436,14 @@ If you feel tempted to add:
 * AI
 * Extensions
 
-**Stop. That’s post-MVP.**
+Do not implement it.
 
 ---
 
-### What to do now
+If you want next:
 
-1. Create repo
-2. Paste tickets
-3. Start **T0.1 → T0.2 → T1.2**
-4. Do not re-plan again
+* A Week-1 execution order Codex prompt
+* Or a “build cop” checklist to reject bad PRs
+* Or ready-to-paste Codex system prompt
 
-If you want, next I can:
-
-* Turn this into a **GitHub Issues CSV**
-* Or walk you through **Week 1 execution order**
-* Or drop **Dexie + Pocket import code**
-
-Just say the word.
+Say the word.
