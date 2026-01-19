@@ -207,6 +207,8 @@ Helpers:
 
 **DoD:** No import hard-fails due to parsing.
 
+**Status:** Complete — added Readability parsing with a sanitized raw-HTML fallback and surfaced parse status during import preview.
+
 ---
 
 ### T2.5 — Persist imported articles incrementally
