@@ -13,7 +13,7 @@ type FetchArticleOptions = {
 type FetchArticleBatchOptions = {
   concurrency?: number;
   timeoutMs?: number;
-  onResult?: (result: FetchArticleResult) => void;
+  onResult?: (result: FetchArticleResult) => void | Promise<void>;
 };
 
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -95,7 +95,7 @@ export const fetchArticlesWithConcurrency = async (
         timeoutMs: options.timeoutMs,
       });
       results[currentIndex] = result;
-      options.onResult?.(result);
+      await options.onResult?.(result);
     }
   };
 

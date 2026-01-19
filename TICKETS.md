@@ -220,6 +220,8 @@ Helpers:
 
 **DoD:** Articles appear in library during import.
 
+**Status:** Complete — persisted imported articles with tag associations and import job progress updates during fetch.
+
 ---
 
 ### T2.6 — Import progress UI
