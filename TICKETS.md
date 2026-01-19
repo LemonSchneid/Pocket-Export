@@ -251,6 +251,8 @@ Helpers:
 
 **DoD:** Clicking opens reader.
 
+**Status:** Complete — library list now shows titles, site names, saved dates, and read status with reader links.
+
 ---
 
 ### T3.2 — Read / unread state
