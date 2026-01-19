@@ -277,6 +277,8 @@ Helpers:
 
 **DoD:** Archived items hidden by default.
 
+**Status:** Complete — added archive toggles, archived filter, and default-hidden archived items in the library.
+
 ---
 
 # 🏷 EPIC 4 — Tags + Search

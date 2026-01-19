@@ -219,13 +219,40 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.library-item__content {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px;
+}
+
 .library-item__link {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 16px;
   color: inherit;
   text-decoration: none;
+}
+
+.library-item__actions {
+  display: flex;
+  align-items: flex-start;
+}
+
+.library-item__action {
+  border-radius: 999px;
+  border: 1px solid #d7d1c8;
+  background: #ffffff;
+  color: #1f1f1f;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.library-item__action:hover {
+  border-color: #b8afa4;
 }
 
 .library-item:hover {
@@ -263,6 +290,12 @@
   background: #ffffff;
   color: #4a4a4a;
   border: 1px solid #d7d1c8;
+}
+
+.library-item__status.is-archived {
+  background: #efe9e1;
+  color: #4a4a4a;
+  border: 1px dashed #c9c1b6;
 }
 
 .library-item__meta {
